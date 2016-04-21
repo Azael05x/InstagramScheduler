@@ -1,7 +1,10 @@
 'use strict';
 
-var React = require('react-native');
-var {
+import React, {
+  Component,
+} from 'react';
+
+import {
   View,
   Text,
   Image,
@@ -10,24 +13,44 @@ var {
   TouchableHighlight,
   TouchableNativeFeedback,
   NativeModules
-} = React;
+} from 'react-native';
 
-var InstagramPost = React.createClass({
-  getInitialState() {
-    return {
+import {
+  MKButton,
+  MKColor,
+} from 'react-native-material-kit';
 
-    }
-  },
+class InstagramPost extends Component {
+  constructor(props) {
+    super(props);
+    var react = this;
+
+    this.syncPicsButton = {
+      ...MKButton.coloredButton().toProps(),
+      backgroundColor: MKColor.LightBlue,
+      onPress: (() => {
+        react.openInstagram();
+      })
+    };
+    this.syncPicsButtonText = {
+      pointerEvents: 'none',
+      style: {
+        color: 'white',
+        fontWeight: 'bold',
+      }
+    };
+
+  }
 
   openInstagram() {
     console.log('open-instagram');
-  },
+  }
 
   openDetails() {
     console.log('open-details');
-  },
+  }
 
-  render: function() {
+  render() {
     var TouchableElement = TouchableHighlight;
     if (Platform.OS === 'android') {
       TouchableElement = TouchableNativeFeedback;
@@ -49,13 +72,11 @@ var InstagramPost = React.createClass({
           />
         </View>
         <View style={style.containerDetails}>
-          <TouchableElement onPress={this.openInstagram}>
-            <View style={style.containerPublish}>
-              <Text style={style.detailsPublish}>
-                Publish
-              </Text>
-            </View>
-          </TouchableElement>
+          <MKButton {...this.syncPicsButton}>
+            <Text {...this.syncPicsButtonText}>
+              Publish
+            </Text>
+          </MKButton>
 
           <View style={style.containerDetailsMore}>
             <TouchableElement onPress={this.openDetails}>
@@ -68,7 +89,7 @@ var InstagramPost = React.createClass({
       </View>
     );
   }
-});
+}
 
 var style = StyleSheet.create({
   container: {
@@ -129,7 +150,7 @@ var style = StyleSheet.create({
           fontWeight: '500',
         },
       containerDetailsMore: {
-        flex: 1, 
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',

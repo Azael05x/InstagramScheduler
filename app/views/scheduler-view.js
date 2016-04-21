@@ -1,44 +1,82 @@
 'use strict';
+var InstagramPost = require('../components/instagram-post');
 
-var React = require('react-native');
-var {
+import React, {
+  Component,
+} from 'react';
+
+import {
   ListView,
   View,
   Text
-} = React;
+} from 'react-native';
 
-var InstagramPost = require('../components/instagram-post');
+import {
+  MKButton,
+  MKColor,
+} from 'react-native-material-kit';
 
-var SchedulerView = React.createClass({
-  getInitialState: function() {
+class SchedulerView extends Component {
+  constructor(props) {
+    super(props);
+    var react = this;
     var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-    return {
+    this.state = {
+      images: THUMBS,
       dataSource: ds.cloneWithRows(THUMBS),
+    }
+
+    this.syncPicsButton = {
+      ...MKButton.coloredButton().toProps(),
+      backgroundColor: MKColor.DeepOrange,
+      borderRadius: 0,
+      onPress: (() => {
+        console.log("Hi, it's a colored button!");
+        react.syncPhotos();
+      }),
     };
-  },
+    this.syncPicsButtonText = {
+      pointerEvents: 'none',
+      style: {
+        color: 'white',
+        fontWeight: 'bold',
+      }
+    };
+  }
 
-  render: function() {
+  syncPhotos() {
+    console.log("SYNC PHOTOS");
+  }
+
+  render() {
     return (
-      <ListView
-        dataSource={this.state.dataSource}
-        renderRow={this.renderPost}
-        renderSeparator={this.renderSeperator} />
+      <View>
+        <MKButton {...this.syncPicsButton}>
+          <Text {...this.syncPicsButtonText}>
+            Sync Photos
+          </Text>
+        </MKButton>
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderPost}
+          renderSeparator={this.renderSeperator} />
+      </View>
     );
-  },
+  }
 
-  renderSeperator: function(sectionID, rowID) {
+  renderSeperator(sectionID, rowID) {
     return(
       <View key={sectionID+rowID} style={{height: 30}} />
     );
-  },
+  }
 
-  renderPost: function(post) {
+  renderPost(post) {
     return(
       <InstagramPost data={post} />
     );
   }
 
-});
+}
 
 const THUMBS = [
   {time: '18:00', username: 'iamaigars', url: 'http://lorempixel.com/1200/1200/sports/', profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
