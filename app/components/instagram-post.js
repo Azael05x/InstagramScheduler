@@ -9,8 +9,7 @@ var {
   Platform,
   TouchableHighlight,
   TouchableNativeFeedback,
-  NativeModules,
-  InstagramShareAndroid
+  NativeModules
 } = React;
 
 var InstagramPost = React.createClass({
@@ -22,7 +21,6 @@ var InstagramPost = React.createClass({
 
   openInstagram() {
     console.log('open-instagram');
-    InstagramShareAndroid.share(this.props.data.url);
   },
 
   openDetails() {
@@ -131,7 +129,7 @@ var style = StyleSheet.create({
           fontWeight: '500',
         },
       containerDetailsMore: {
-        flex: 1,
+        flex: 1, 
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
