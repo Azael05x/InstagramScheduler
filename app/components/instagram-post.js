@@ -13,6 +13,7 @@ import {
   StyleSheet,
   TouchableNativeFeedback,
   NativeModules,
+  TimePickerAndroid
 } from 'react-native';
 
 import {
@@ -33,7 +34,8 @@ class InstagramPost extends Component {
     // Initial State
     this.state = {
       progress: 0,
-      downloading: false
+      downloading: false,
+      time: props.time
     }
   }
 
@@ -98,8 +100,25 @@ class InstagramPost extends Component {
     });
   }
 
-  openDetails() {
-    console.log('open-details');
+  async showPicker() {
+    var options = {
+      is24Hour: true
+    };
+
+    try {
+      const {action, minute, hour} = await TimePickerAndroid.open(options);
+      var newState = {};
+      if (action === TimePickerAndroid.timeSetAction) {
+        this.setState({
+          time: (hour + ":" + minute)
+        });
+      } else if (action === TimePickerAndroid.dismissedAction) {
+
+      }
+      this.setState(newState);
+    } catch ({code, message}) {
+      console.warn(`Error in example '${stateKey}': `, message);
+    }
   }
 
   render() {
@@ -117,7 +136,7 @@ class InstagramPost extends Component {
           <Image source={{uri: this.props.data.profile}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
           <View style={style.containerProfileTime}>
-            <Text style={style.profileTime}>{this.props.data.time}</Text>
+            <Text style={style.profileTime}>{this.state.time}</Text>
           </View>
         </View>
         <View style={style.containerImage}>
@@ -134,7 +153,7 @@ class InstagramPost extends Component {
           </MKButton>
 
           <View style={style.containerDetailsMore}>
-            <TouchableElement onPress={this.openDetails}>
+            <TouchableElement onPress={this.showPicker.bind(this)}>
               <View style={style.containerDetailsMoreTouchable}>
                 <Image style={style.detailsMore} resizeMode='stretch' source={require('../../assets/more.png')} />
               </View>
