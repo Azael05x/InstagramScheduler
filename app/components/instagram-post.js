@@ -1,5 +1,7 @@
 'use strict';
 
+var FileSystem = require('react-native-fs');
+
 import React, {
   Component,
 } from 'react';
@@ -9,27 +11,40 @@ import {
   Text,
   Image,
   StyleSheet,
-  Platform,
-  TouchableHighlight,
   TouchableNativeFeedback,
-  NativeModules
+  NativeModules,
 } from 'react-native';
 
 import {
   MKButton,
   MKColor,
+  MKProgress
 } from 'react-native-material-kit';
+
+const DOWNLOAD_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app.jpg";
 
 class InstagramPost extends Component {
   constructor(props) {
     super(props);
     var react = this;
 
+    this.constructButtons();
+
+    // Initial State
+    this.state = {
+      progress: 0,
+      downloading: false
+    }
+  }
+
+  constructButtons() {
+    var react = this;
+
     this.syncPicsButton = {
       ...MKButton.coloredButton().toProps(),
       backgroundColor: MKColor.LightBlue,
       onPress: (() => {
-        react.openInstagram();
+        react.publishOnInstagram();
       })
     };
     this.syncPicsButtonText = {
@@ -39,11 +54,48 @@ class InstagramPost extends Component {
         fontWeight: 'bold',
       }
     };
-
   }
 
-  openInstagram() {
-    console.log('open-instagram');
+  publishOnInstagram() {
+    var react = this;
+    react.download();
+    react.setState({
+      progress: 0,
+      downloading: true
+    });
+  }
+
+  download() {
+    var react = this;
+    var link = this.props.data.url;
+
+    FileSystem.downloadFile(link, DOWNLOAD_PATH, function(){}, this.updateProgress.bind(react)).then(() => {
+      react.setState({
+        progress: 1
+      });
+
+      // For an effect
+      new Promise(function(resolve, reject) {
+        react.setState({
+          downloading: false,
+          progress: 0
+        }, react.openInstagramIntent);
+      })
+    });
+  }
+
+  updateProgress(progress) {
+    this.setState({
+      progress: (progress.bytesWritten / progress.contentLength)
+    })
+  }
+
+  openInstagramIntent() {
+    FileSystem.exists(DOWNLOAD_PATH).then((exists) => {
+      if (exists) {
+        NativeModules.InstagramPublish.share(DOWNLOAD_PATH);
+      }
+    });
   }
 
   openDetails() {
@@ -51,9 +103,12 @@ class InstagramPost extends Component {
   }
 
   render() {
-    var TouchableElement = TouchableHighlight;
-    if (Platform.OS === 'android') {
-      TouchableElement = TouchableNativeFeedback;
+    var TouchableElement = TouchableNativeFeedback;
+
+    // Downloading progress bar:
+    var progressBar = <View />;
+    if (this.state.downloading == true) {
+      progressBar = <MKProgress progress={this.state.progress} />
     }
 
     return(
@@ -85,6 +140,9 @@ class InstagramPost extends Component {
               </View>
             </TouchableElement>
           </View>
+        </View>
+        <View>
+          {progressBar}
         </View>
       </View>
     );
@@ -129,7 +187,7 @@ var style = StyleSheet.create({
     },
       thumbnail: {
         height: 306,
-        borderRadius: 5
+        borderRadius: 0
       },
     containerDetails: {
       height: 50,
