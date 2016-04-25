@@ -7,3 +7,6 @@ project(':react-native-fs').projectDir = new File(settingsDir, '../node_modules/
 
 include ':RNMaterialKit'
 project(':RNMaterialKit').projectDir = file('../node_modules/react-native-material-kit/android')
+
+include ':react-native-system-notification'
+project(':react-native-system-notification').projectDir = new File(settingsDir, '../node_modules/react-native-system-notification/android')

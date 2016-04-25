@@ -13,7 +13,9 @@ import {
   StyleSheet,
   TouchableNativeFeedback,
   NativeModules,
-  TimePickerAndroid
+  TimePickerAndroid,
+  DatePickerAndroid,
+  DeviceEventEmitter
 } from 'react-native';
 
 import {
@@ -21,6 +23,8 @@ import {
   MKColor,
   MKProgress
 } from 'react-native-material-kit';
+
+import Notification from 'react-native-system-notification';
 
 const DOWNLOAD_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app.jpg";
 
@@ -35,8 +39,22 @@ class InstagramPost extends Component {
     this.state = {
       progress: 0,
       downloading: false,
-      time: props.time
+      year: null,
+      month: null,
+      day: null,
+      hour: null,
+      minute: null
     }
+  }
+
+  resetTimeState() {
+    this.setState({
+      year: null,
+      month: null,
+      day: null,
+      hour: null,
+      minute: null
+    })
   }
 
   constructButtons() {
@@ -100,25 +118,59 @@ class InstagramPost extends Component {
     });
   }
 
-  async showPicker() {
+  async showDatePicker() {
+    try {
+      var options = {
+        date: new Date(),
+        minDate: new Date()
+      };
+      var newState = {};
+      const {action, year, month, day} = await DatePickerAndroid.open(options);
+      if (action === DatePickerAndroid.dateSetAction) {
+        this.showTimePicker();
+
+        var date = new Date(year, month, day);
+        this.setState({
+          year: year,
+          month: month,
+          day: day
+        });
+      } else {
+        this.resetTimeState()
+      }
+    } catch ({code, message}) {
+      console.warn(`Error in example: `, message);
+    }
+  }
+
+  async showTimePicker() {
     var options = {
       is24Hour: true
     };
 
     try {
       const {action, minute, hour} = await TimePickerAndroid.open(options);
-      var newState = {};
       if (action === TimePickerAndroid.timeSetAction) {
+        this.createNotification(this.state.year, this.state.month, this.state.day, hour, minute);
+
         this.setState({
-          time: (hour + ":" + minute)
+          hour: hour,
+          minute: minute
         });
       } else if (action === TimePickerAndroid.dismissedAction) {
-
+        this.resetTimeState()
       }
-      this.setState(newState);
     } catch ({code, message}) {
-      console.warn(`Error in example '${stateKey}': `, message);
+      console.warn(`Error in example: `, message);
     }
+  }
+
+  createNotification(year, month, day, hour, minute) {
+    Notification.create({
+      subject: 'Instagram Scheduler',
+      message: 'You need to post a photo',
+      sendAt: new Date(year, month, day, hour, minute)
+    });
   }
 
   render() {
@@ -136,7 +188,7 @@ class InstagramPost extends Component {
           <Image source={{uri: this.props.data.profile}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
           <View style={style.containerProfileTime}>
-            <Text style={style.profileTime}>{this.state.time}</Text>
+            <Text style={style.profileTime}>{this.state.year}-{this.state.month}-{this.state.day} {this.state.hour}:{this.state.minute}</Text>
           </View>
         </View>
         <View style={style.containerImage}>
@@ -153,7 +205,7 @@ class InstagramPost extends Component {
           </MKButton>
 
           <View style={style.containerDetailsMore}>
-            <TouchableElement onPress={this.showPicker.bind(this)}>
+            <TouchableElement onPress={this.showDatePicker.bind(this)}>
               <View style={style.containerDetailsMoreTouchable}>
                 <Image style={style.detailsMore} resizeMode='stretch' source={require('../../assets/more.png')} />
               </View>

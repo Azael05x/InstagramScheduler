@@ -125,4 +125,5 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-fs')
     compile project(':RNMaterialKit')
+    compile project(':react-native-system-notification')
 }
