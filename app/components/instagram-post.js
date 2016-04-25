@@ -1,6 +1,9 @@
 'use strict';
 
 var FileSystem = require('react-native-fs');
+var style = require('../styles/instagram-post');
+var Helper = require('../helpers/general');
+var Notification = require('../helpers/notification');
 
 import React, {
   Component,
@@ -18,22 +21,12 @@ import {
   DeviceEventEmitter
 } from 'react-native';
 
-import {
-  MKButton,
-  MKColor,
-  MKProgress
-} from 'react-native-material-kit';
-
-import Notification from 'react-native-system-notification';
-
 const DOWNLOAD_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app.jpg";
 
 class InstagramPost extends Component {
   constructor(props) {
     super(props);
     var react = this;
-
-    this.constructButtons();
 
     // Initial State
     this.state = {
@@ -55,25 +48,6 @@ class InstagramPost extends Component {
       hour: null,
       minute: null
     })
-  }
-
-  constructButtons() {
-    var react = this;
-
-    this.syncPicsButton = {
-      ...MKButton.coloredButton().toProps(),
-      backgroundColor: MKColor.LightBlue,
-      onPress: (() => {
-        react.publishOnInstagram();
-      })
-    };
-    this.syncPicsButtonText = {
-      pointerEvents: 'none',
-      style: {
-        color: 'white',
-        fontWeight: 'bold',
-      }
-    };
   }
 
   publishOnInstagram() {
@@ -151,7 +125,7 @@ class InstagramPost extends Component {
     try {
       const {action, minute, hour} = await TimePickerAndroid.open(options);
       if (action === TimePickerAndroid.timeSetAction) {
-        this.createNotification(this.state.year, this.state.month, this.state.day, hour, minute);
+        Notification.createNotification(this.state.year, this.state.month, this.state.day, hour, minute);
 
         this.setState({
           hour: hour,
@@ -165,21 +139,12 @@ class InstagramPost extends Component {
     }
   }
 
-  createNotification(year, month, day, hour, minute) {
-    Notification.create({
-      subject: 'Instagram Scheduler',
-      message: 'You need to post a photo',
-      sendAt: new Date(year, month, day, hour, minute)
-    });
-  }
-
   render() {
     var TouchableElement = TouchableNativeFeedback;
 
     // Downloading progress bar:
     var progressBar = <View />;
     if (this.state.downloading == true) {
-      progressBar = <MKProgress progress={this.state.progress} />
     }
 
     return(
@@ -188,7 +153,7 @@ class InstagramPost extends Component {
           <Image source={{uri: this.props.data.profile}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
           <View style={style.containerProfileTime}>
-            <Text style={style.profileTime}>{this.state.year}-{this.state.month}-{this.state.day} {this.state.hour}:{this.state.minute}</Text>
+            <Text style={style.profileTime}>{Helper.getPublishDate(this.state.year, this.state.month, this.state.day, this.state.hour, this.state.minute)}</Text>
           </View>
         </View>
         <View style={style.containerImage}>
@@ -198,11 +163,11 @@ class InstagramPost extends Component {
           />
         </View>
         <View style={style.containerDetails}>
-          <MKButton {...this.syncPicsButton}>
-            <Text {...this.syncPicsButtonText}>
-              Publish
-            </Text>
-          </MKButton>
+          <TouchableElement onPress={this.publishOnInstagram.bind(this)}>
+            <View style={style.containerPublish}>
+              <Text style={style.detailsPublish}>Publish</Text>
+            </View>
+          </TouchableElement>
 
           <View style={style.containerDetailsMore}>
             <TouchableElement onPress={this.showDatePicker.bind(this)}>
@@ -219,83 +184,5 @@ class InstagramPost extends Component {
     );
   }
 }
-
-var style = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    borderRadius: 3,
-    marginLeft: -1,
-    marginRight: -1,
-  },
-    containerProfile: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      height: 50
-    },
-      containerProfileImage: {
-        height: 40,
-        width: 40,
-        marginLeft: 10,
-        borderRadius: 99
-      },
-      profileText: {
-        marginLeft: 10,
-        color: '#125688',
-        fontWeight: '500',
-      },
-      containerProfileTime: {
-        flex: 1,
-        alignItems: 'flex-end',
-        marginRight: 10,
-      },
-        profileTime: {
-          color: '#125688',
-          fontWeight: '500',
-        },
-    containerImage: {
-      height: 306,
-      flex: 1,
-    },
-      thumbnail: {
-        height: 306,
-        borderRadius: 0
-      },
-    containerDetails: {
-      height: 50,
-      flex: 1,
-      alignItems: 'center',
-      flexDirection: 'row',
-    },
-      containerPublish: {
-        height: 50,
-        paddingLeft: 20,
-        paddingRight: 20,
-        backgroundColor: '#2d6599',
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-        detailsPublish: {
-          color: '#fff',
-          fontWeight: '500',
-        },
-      containerDetailsMore: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        height: 50,
-      },
-        containerDetailsMoreTouchable: {
-          height: 50,
-          alignItems: 'center',
-          flexDirection: 'row',
-        },
-          detailsMore: {
-            height: 8,
-            width: 35,
-            marginRight: 10,
-            marginLeft: 10,
-          },
-});
 
 module.exports = InstagramPost;
