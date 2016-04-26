@@ -124,6 +124,10 @@ dependencies {
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-fs')
-    compile project(':RNMaterialKit')
     compile project(':react-native-system-notification')
 }
+
+project.ext.vectoricons = [
+    iconFontNames: [ 'FontAwesome.ttf' ] // Name of the font files you want to copy
+]
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

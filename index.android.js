@@ -7,18 +7,46 @@
 // react-native run-android
 
 'use strict';
+
 import React, {
-  AppRegistry,
   Component,
+} from 'react';
+
+import {
+  AppRegistry,
 } from 'react-native';
 
 var SchedulerView = require('./app/views/scheduler-view');
+var PublishView = require('./app/views/publish-view');
+var Notification = require('./app/helpers/notification');
 
 class InstagramScheduler extends Component {
+  constructor(props) {
+    super(props);
+    Notification.listen.bind(this, this.renderPublishPhoto)();
+
+    this.state = {
+      route: 'scheduler',
+      route_props: {}
+    };
+  }
+
+  renderPublishPhoto(payload) {
+    this.setState({
+      route: 'publish',
+      route_props: payload
+    });
+  }
+
   render() {
-    return (
-      <SchedulerView />
-    );
+    if (this.state.route == 'scheduler')
+      return (
+        <SchedulerView />
+      );
+    else if (this.state.route == 'publish')
+      return (
+        <PublishView data={this.state.route_props} />
+      );
   }
 }
 

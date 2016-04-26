@@ -8,7 +8,8 @@ import React, {
 import {
   ListView,
   View,
-  Text
+  Text,
+  RefreshControl
 } from 'react-native';
 
 import {
@@ -23,18 +24,43 @@ class SchedulerView extends Component {
     var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       images: THUMBS,
-      dataSource: ds.cloneWithRows(THUMBS)
+      dataSource: ds.cloneWithRows(THUMBS),
+      refreshing: false
     };
   };
+
+  _onRefresh() {
+    var react = this;
+    new Promise(function(resolve, reject) {
+    	setTimeout(function() {
+        resolve();
+      }, 5000)
+    }).then(() => {react.setState({refreshing: false})})
+    react.setState({
+      refreshing: true
+    });
+  }
 
   render() {
     return (
       <ListView
         dataSource={this.state.dataSource}
+        initialListSize={3}
+        pageSize={5}
         renderRow={this.renderPost}
-        renderSeparator={this.renderSeperator} />
+        renderSeparator={this.renderSeperator}
+        refreshControl={this.renderRefresh()} />
     )
   };
+
+  renderRefresh() {
+    return (
+      <RefreshControl
+        refreshing={this.state.refreshing}
+        onRefresh={this._onRefresh.bind(this)}
+        colors={['tomato', 'forestgreen', 'deepskyblue']} />
+    );
+  }
 
   renderSeperator(sectionID, rowID) {
     return(
@@ -51,9 +77,9 @@ class SchedulerView extends Component {
 }
 
 const THUMBS = [
-  {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/11379925_572014776289415_1652671942_n.jpg?ig_cache_key=MTIxMzEzMDY2NTM5NzQ3ODI2Ng%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
-  {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/11259869_1584280688562925_636650324_n.jpg?ig_cache_key=MTE5ODUzMjAzODc5MjQ3MTM5Mg%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
-  {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/e15/12784058_961832577235262_1364469160_n.jpg?ig_cache_key=MTE5MzMwNzQ2MzI5NzE2MzMwMQ%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
+  {id: 1, time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/11379925_572014776289415_1652671942_n.jpg?ig_cache_key=MTIxMzEzMDY2NTM5NzQ3ODI2Ng%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
+  {id: 2, time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/11259869_1584280688562925_636650324_n.jpg?ig_cache_key=MTE5ODUzMjAzODc5MjQ3MTM5Mg%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
+  {id: 3, time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/e15/12784058_961832577235262_1364469160_n.jpg?ig_cache_key=MTE5MzMwNzQ2MzI5NzE2MzMwMQ%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
   {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/12728444_1703792063200424_572411268_n.jpg?ig_cache_key=MTE4NDQyMTY1NzEyMzkwNjEyMA%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
   {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/s640x640/sh0.08/e35/12276784_921466431267750_1782043432_n.jpg?ig_cache_key=MTEzMDUwMjQ4NTc0NzA2NTA0Mw%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},
   {time: '18:00', username: 'iamaigars', url: "https://scontent.cdninstagram.com/t51.2885-15/sh0.08/e35/p640x640/11372080_1027786177278267_1530068525_n.jpg?ig_cache_key=MTExMjM4NzU4NjMxOTg2ODQzNw%3D%3D.2", profile: 'https://scontent-ams3-1.cdninstagram.com/t51.2885-19/s150x150/11821657_939173349476177_1511397910_a.jpg'},

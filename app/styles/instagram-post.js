@@ -55,6 +55,8 @@ module.exports = StyleSheet.create({
         backgroundColor: '#2d6599',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 0
       },
         detailsPublish: {
           color: '#fff',
@@ -70,12 +72,12 @@ module.exports = StyleSheet.create({
         containerDetailsMoreTouchable: {
           height: 50,
           alignItems: 'center',
+          justifyContent: 'center',
           flexDirection: 'row',
+          backgroundColor: "#ecf0f1"
         },
           detailsMore: {
-            height: 8,
-            width: 35,
-            marginRight: 10,
-            marginLeft: 10,
+            marginRight: 15,
+            marginLeft: 15,
           },
 });

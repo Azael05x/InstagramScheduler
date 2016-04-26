@@ -4,6 +4,7 @@ var FileSystem = require('react-native-fs');
 var style = require('../styles/instagram-post');
 var Helper = require('../helpers/general');
 var Notification = require('../helpers/notification');
+var Icon = require('react-native-vector-icons/FontAwesome');
 
 import React, {
   Component,
@@ -18,7 +19,8 @@ import {
   NativeModules,
   TimePickerAndroid,
   DatePickerAndroid,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  ProgressBarAndroid
 } from 'react-native';
 
 const DOWNLOAD_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app.jpg";
@@ -125,7 +127,7 @@ class InstagramPost extends Component {
     try {
       const {action, minute, hour} = await TimePickerAndroid.open(options);
       if (action === TimePickerAndroid.timeSetAction) {
-        Notification.createNotification(this.state.year, this.state.month, this.state.day, hour, minute);
+        Notification.create(this.state.year, this.state.month, this.state.day, hour, minute, this.props.data);
 
         this.setState({
           hour: hour,
@@ -140,20 +142,17 @@ class InstagramPost extends Component {
   }
 
   render() {
-    var TouchableElement = TouchableNativeFeedback;
-
-    // Downloading progress bar:
-    var progressBar = <View />;
-    if (this.state.downloading == true) {
-    }
-
     return(
       <View style={style.container}>
         <View style={style.containerProfile}>
           <Image source={{uri: this.props.data.profile}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
           <View style={style.containerProfileTime}>
-            <Text style={style.profileTime}>{Helper.getPublishDate(this.state.year, this.state.month, this.state.day, this.state.hour, this.state.minute)}</Text>
+            <Text style={style.profileTime}>
+              { this.renderBellIcon() }
+              {" "}
+              {Helper.getPublishDate(this.state.year, this.state.month, this.state.day, this.state.hour, this.state.minute)}
+            </Text>
           </View>
         </View>
         <View style={style.containerImage}>
@@ -162,27 +161,64 @@ class InstagramPost extends Component {
             style={style.thumbnail}
           />
         </View>
-        <View style={style.containerDetails}>
-          <TouchableElement onPress={this.publishOnInstagram.bind(this)}>
-            <View style={style.containerPublish}>
-              <Text style={style.detailsPublish}>Publish</Text>
-            </View>
-          </TouchableElement>
-
-          <View style={style.containerDetailsMore}>
-            <TouchableElement onPress={this.showDatePicker.bind(this)}>
-              <View style={style.containerDetailsMoreTouchable}>
-                <Image style={style.detailsMore} resizeMode='stretch' source={require('../../assets/more.png')} />
-              </View>
-            </TouchableElement>
-          </View>
-        </View>
-        <View>
-          {progressBar}
-        </View>
+        { this.renderFooter() }
+        { this.renderProgressBar() }
       </View>
     );
   }
+
+  renderBellIcon() {
+    if (this.state.minute) {
+      return(
+        <Icon name="bell" />
+      );
+    }
+  }
+
+  renderProgressBar() {
+    if (this.state.downloading) {
+      return(
+        <ProgressBarAndroid
+          progress={this.state.progress}
+          indeterminate={false}
+          styleAttr="Horizontal"
+          color="darkslateblue" />
+      );
+    }
+    return;
+  }
+
+  renderFooter() {
+    if(this.props.publish == true)
+    {
+      return(
+        <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+          <Text style={style.detailsPublish}>Publish</Text>
+        </Icon.Button>
+      );
+    }
+    else
+    {
+      return(
+        <View style={style.containerDetails}>
+          <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+            <Text style={style.detailsPublish}>Publish</Text>
+          </Icon.Button>
+
+          <View style={style.containerDetailsMore}>
+            <TouchableNativeFeedback onPress={this.showDatePicker.bind(this)}>
+              <View style={style.containerDetailsMoreTouchable}>
+                <Icon name="clock-o" size={25} style={style.detailsMore} />
+              </View>
+            </TouchableNativeFeedback>
+          </View>
+        </View>
+      );
+    }
+  }
 }
+InstagramPost.defaultProps = {
+  publish: false
+};
 
 module.exports = InstagramPost;
