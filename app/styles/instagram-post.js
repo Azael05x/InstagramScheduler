@@ -62,6 +62,16 @@ module.exports = StyleSheet.create({
           color: '#fff',
           fontWeight: '500',
         },
+      containerPublishDisabled: {
+        height: 50,
+        paddingLeft: 20,
+        paddingRight: 20,
+        backgroundColor: '#7f8c8d',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 0
+      },
       containerDetailsMore: {
         flex: 1,
         flexDirection: 'row',

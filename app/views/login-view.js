@@ -40,7 +40,6 @@ class LoginView extends Component {
         uuid: DeviceInfo.getUniqueID()
       })
     }).then((response) => {
-      console.warn("Got Response:");
       return response.json();
     }).then((json) => {
       if (json.status == "success") {

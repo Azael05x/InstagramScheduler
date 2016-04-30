@@ -28,7 +28,6 @@ const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-sche
 class InstagramPost extends Component {
   constructor(props) {
     super(props);
-    var react = this;
 
     // Initial State
     this.state = {
@@ -39,6 +38,12 @@ class InstagramPost extends Component {
       day: null,
       hour: null,
       minute: null
+    }
+  }
+
+  componentDidMount() {
+    if (this.props.publish) {
+      this.publishOnInstagram()
     }
   }
 
@@ -73,7 +78,7 @@ class InstagramPost extends Component {
 
   download() {
     var react = this;
-    var link = this.props.data.url;
+    var link = this.props.data.image;
 
     FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(react)).then(() => {
       react.setState({
@@ -156,7 +161,7 @@ class InstagramPost extends Component {
     return(
       <View style={style.container}>
         <View style={style.containerProfile}>
-          <Image source={{uri: this.props.data.profile}} style={style.containerProfileImage} />
+          <Image source={{uri: this.props.data.profile_picture}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
           <View style={style.containerProfileTime}>
             <Text style={style.profileTime}>
@@ -168,7 +173,7 @@ class InstagramPost extends Component {
         </View>
         <View style={style.containerImage}>
           <Image
-            source={{uri: this.props.data.url}}
+            source={{uri: this.props.data.image}}
             style={style.thumbnail}
           />
         </View>
@@ -203,9 +208,13 @@ class InstagramPost extends Component {
     if(this.props.publish == true)
     {
       return(
-        <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
-          <Text style={style.detailsPublish}>Publish</Text>
-        </Icon.Button>
+        this.state.downloading ?
+          <Icon.Button name="instagram" style={style.containerPublishDisabled}>
+            <Text style={style.detailsPublish}>Publish</Text>
+          </Icon.Button>
+        : <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+            <Text style={style.detailsPublish}>Publish</Text>
+          </Icon.Button>
       );
     }
     else

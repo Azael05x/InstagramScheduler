@@ -35,6 +35,8 @@ class InstagramScheduler extends Component {
       route_props: {}
     };
 
+    // AsyncStorage.removeItem("auth");
+
     // Neccessary setup:
     BackAndroid.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
     FileSystem.mkdir(FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app/");
@@ -47,8 +49,11 @@ class InstagramScheduler extends Component {
     // Else go to scheduler route
     AsyncStorage.getItem("auth").then((response) => {
       if (response) {
-        this.setState({
-          route: 'scheduler',
+        AsyncStorage.getItem("images").then((response) => {
+          this.setState({
+            route: 'scheduler',
+            route_props: (JSON.parse(response) || [])
+          })
         })
       } else {
         this.setState({
@@ -83,7 +88,7 @@ class InstagramScheduler extends Component {
   render() {
     if (this.state.route == 'scheduler')
       return (
-        <SchedulerView />
+        <SchedulerView images={this.state.route_props} />
       );
     else if (this.state.route == 'publish')
       return (

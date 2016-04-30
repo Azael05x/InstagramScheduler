@@ -5,12 +5,6 @@ import React, {
   Component,
 } from 'react';
 
-// import {
-//   ListView,
-//   View,
-//   Text
-// } from 'react-native';
-
 class PublishView extends Component {
   constructor(props) {
     super(props);
