@@ -5,16 +5,11 @@ import React, {
   Component,
 } from 'react';
 
-import {
-  ListView,
-  View,
-  Text
-} from 'react-native';
-
-import {
-  MKButton,
-  MKColor,
-} from 'react-native-material-kit';
+// import {
+//   ListView,
+//   View,
+//   Text
+// } from 'react-native';
 
 class PublishView extends Component {
   constructor(props) {

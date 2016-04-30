@@ -14,24 +14,66 @@ import React, {
 
 import {
   AppRegistry,
+  BackAndroid,
+  View,
+  AsyncStorage
 } from 'react-native';
+
+var FileSystem = require('react-native-fs');
+var Notification = require('./app/helpers/notification');
+
 
 var SchedulerView = require('./app/views/scheduler-view');
 var PublishView = require('./app/views/publish-view');
-var Notification = require('./app/helpers/notification');
+var LoginView = require('./app/views/login-view');
 
 class InstagramScheduler extends Component {
   constructor(props) {
     super(props);
-    Notification.listen.bind(this, this.renderPublishPhoto)();
-
     this.state = {
-      route: 'scheduler',
+      route: '',
       route_props: {}
     };
+
+    // Neccessary setup:
+    BackAndroid.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    FileSystem.mkdir(FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app/");
+
+    // Routes:
+    // If came from Notification:
+    Notification.listen.bind(this, this.routePublishPhoto)();
+    // Check Authentication
+    // If hadn't authenticated go to login route
+    // Else go to scheduler route
+    AsyncStorage.getItem("auth").then((response) => {
+      if (response) {
+        this.setState({
+          route: 'scheduler',
+        })
+      } else {
+        this.setState({
+          route: 'login'
+        });
+      }
+    });
   }
 
-  renderPublishPhoto(payload) {
+  onBackPress() {
+    switch (this.state.route) {
+      case 'publish':
+        this.setState({
+          route: 'scheduler',
+          route_props: {}
+        })
+        return true;
+        break;
+      default:
+        return false;
+        break;
+    }
+  }
+
+  routePublishPhoto(payload) {
     this.setState({
       route: 'publish',
       route_props: payload
@@ -47,6 +89,19 @@ class InstagramScheduler extends Component {
       return (
         <PublishView data={this.state.route_props} />
       );
+    else if (this.state.route == 'login')
+      return (
+        <LoginView loggedIn={(() => {
+          this.setState({
+            route: 'scheduler'
+          });
+        }).bind(this)} />
+      );
+
+    else
+      return (
+        <View />
+      )
   }
 }
 

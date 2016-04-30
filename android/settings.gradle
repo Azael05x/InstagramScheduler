@@ -7,3 +7,6 @@ project(':react-native-fs').projectDir = new File(settingsDir, '../node_modules/
 
 include ':react-native-system-notification'
 project(':react-native-system-notification').projectDir = new File(settingsDir, '../node_modules/react-native-system-notification/android')
+
+include ':react-native-device-info'
+project(':react-native-device-info').projectDir = new File(settingsDir, '../node_modules/react-native-device-info/android')

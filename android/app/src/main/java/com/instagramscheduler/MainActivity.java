@@ -8,6 +8,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.rnfs.RNFSPackage;
 import io.neson.react.notification.NotificationPackage;
 import com.instagramscheduler.publish.*;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +43,8 @@ public class MainActivity extends ReactActivity {
             new MainReactPackage(),
             new RNFSPackage(),
             new InstagramPublishPackage(this),
-            new NotificationPackage(this)
+            new NotificationPackage(this),
+            new RNDeviceInfo()
         );
     }
 }

@@ -23,7 +23,7 @@ import {
   ProgressBarAndroid
 } from 'react-native';
 
-const DOWNLOAD_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app.jpg";
+const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app";
 
 class InstagramPost extends Component {
   constructor(props) {
@@ -54,18 +54,28 @@ class InstagramPost extends Component {
 
   publishOnInstagram() {
     var react = this;
-    react.download();
-    react.setState({
-      progress: 0,
-      downloading: true
+    FileSystem.exists(this.getDownloadPath()).then(function(exists) {
+      if (exists) {
+        react.openInstagramIntent();
+      } else {
+        react.download();
+        react.setState({
+          progress: 0,
+          downloading: true
+        });
+      }
     });
+  }
+
+  getDownloadPath() {
+    return DOWNLOAD_FOLDER_PATH + "/photo-" + this.props.data.id + ".jpg"
   }
 
   download() {
     var react = this;
     var link = this.props.data.url;
 
-    FileSystem.downloadFile(link, DOWNLOAD_PATH, function(){}, this.updateProgress.bind(react)).then(() => {
+    FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(react)).then(() => {
       react.setState({
         progress: 1
       });
@@ -87,9 +97,10 @@ class InstagramPost extends Component {
   }
 
   openInstagramIntent() {
-    FileSystem.exists(DOWNLOAD_PATH).then((exists) => {
+    var react = this;
+    FileSystem.exists(this.getDownloadPath()).then((exists) => {
       if (exists) {
-        NativeModules.InstagramPublish.share(DOWNLOAD_PATH);
+        NativeModules.InstagramPublish.share(react.getDownloadPath());
       }
     });
   }
