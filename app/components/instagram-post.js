@@ -20,7 +20,8 @@ import {
   TimePickerAndroid,
   DatePickerAndroid,
   DeviceEventEmitter,
-  ProgressBarAndroid
+  ProgressBarAndroid,
+  AsyncStorage
 } from 'react-native';
 
 const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app";
@@ -33,38 +34,52 @@ class InstagramPost extends Component {
     this.state = {
       progress: 0,
       downloading: false,
-      year: null,
-      month: null,
-      day: null,
-      hour: null,
-      minute: null
-    }
+      temp_year: null,
+      temp_month: null,
+      temp_day: null,
+      temp_hour: null,
+      temp_minute: null,
+      notification: {}
+    };
   }
 
+  // When component has mounted, get notification data from storage
+  // Or if it from notification open, then start Instagrma Publish cycle
   componentDidMount() {
     if (this.props.publish) {
       this.publishOnInstagram()
+    } else {
+      this.getNotification((notification) => {
+        notification = JSON.parse(notification || '{}');
+        if (Object.keys(notification).length > 0) {
+          // If Notification is Past Due, reset Notification
+          if (new Date(notification.year, notification.month,
+            notification.day, notification.hour,
+            notification.minute) < new Date().getTime())
+          {
+            this.cancelNotification();
+          } else {
+            // If Notification is to be fired in future, set it to state
+            this.setState({
+              notification: notification
+            })
+          }
+        }
+      });
     }
   }
 
-  resetTimeState() {
-    this.setState({
-      year: null,
-      month: null,
-      day: null,
-      hour: null,
-      minute: null
-    })
-  }
-
+  // Publish on Instagram:
   publishOnInstagram() {
-    var react = this;
-    FileSystem.exists(this.getDownloadPath()).then(function(exists) {
+    // Get bool if file exists:
+    FileSystem.exists(this.getDownloadPath()).then((exists) => {
+      // If file exists then: open Instagram Intent for sharing
       if (exists) {
-        react.openInstagramIntent();
+        this.openInstagramIntent();
+      // Download image, because file is needed for Instagram Share Intent action
       } else {
-        react.download();
-        react.setState({
+        this.download();
+        this.setState({
           progress: 0,
           downloading: true
         });
@@ -76,65 +91,67 @@ class InstagramPost extends Component {
     return DOWNLOAD_FOLDER_PATH + "/photo-" + this.props.data.id + ".jpg"
   }
 
+  // Download file and open Instagram intent
   download() {
-    var react = this;
     var link = this.props.data.image;
 
-    FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(react)).then(() => {
-      react.setState({
-        progress: 1
-      });
-
-      // For an effect
-      new Promise(function(resolve, reject) {
-        react.setState({
-          downloading: false,
-          progress: 0
-        }, react.openInstagramIntent);
-      })
+    // Download image from URL
+    FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(this)).then(() => {
+      // Set resseting state and open Instagram Intent
+      this.setState({
+        downloading: false,
+        progress: 0
+      }, this.openInstagramIntent);
     });
   }
 
+  // Update Progress of download bar
   updateProgress(progress) {
     this.setState({
       progress: (progress.bytesWritten / progress.contentLength)
     })
   }
 
+  // Checks if file for this image exists and then open Instagram Intent
   openInstagramIntent() {
-    var react = this;
     FileSystem.exists(this.getDownloadPath()).then((exists) => {
       if (exists) {
-        NativeModules.InstagramPublish.share(react.getDownloadPath());
+        NativeModules.InstagramPublish.share(this.getDownloadPath());
       }
     });
   }
 
+  // TIME PICKER + SETTING NOTIFICATIONS
+  // Show Date Picker View
   async showDatePicker() {
     try {
       var options = {
         date: new Date(),
         minDate: new Date()
       };
-      var newState = {};
+
       const {action, year, month, day} = await DatePickerAndroid.open(options);
+      // If date choosed
       if (action === DatePickerAndroid.dateSetAction) {
+        // Open Time Picker
         this.showTimePicker();
 
-        var date = new Date(year, month, day);
+        // Save intermidiate state
         this.setState({
-          year: year,
-          month: month,
-          day: day
+          temp_year: year,
+          temp_month: month,
+          temp_day: day
         });
+      // If pressed canceled
       } else {
-        this.resetTimeState()
+        this.cancelNotification();
       }
     } catch ({code, message}) {
       console.warn(`Error in example: `, message);
     }
   }
 
+  // Show Time Picker
   async showTimePicker() {
     var options = {
       is24Hour: true
@@ -142,34 +159,98 @@ class InstagramPost extends Component {
 
     try {
       const {action, minute, hour} = await TimePickerAndroid.open(options);
+      // If time choosed
       if (action === TimePickerAndroid.timeSetAction) {
-        Notification.create(this.state.year, this.state.month, this.state.day, hour, minute, this.props.data);
+        // Remove old notification if such existed
+        if (this.state.notification.id) {
+          Notification.remove(this.state.notification.id);
+        }
 
+        // Set intermidiate state so that afterwards we can use it for Notification creation
         this.setState({
-          hour: hour,
-          minute: minute
+          temp_hour: hour,
+          temp_minute: minute
+        },
+        () => {
+          Notification.create(this.state.temp_year,
+            this.state.temp_month,
+            this.state.temp_day,
+            this.state.temp_hour,
+            this.state.temp_minute,
+            this.props.data,
+            (notification) =>
+            {
+              // Create Notification data which we should store in state and storage
+              var notification_data = {
+                                        id: notification.id,
+                                        year: this.state.temp_year,
+                                        month: this.state.temp_month,
+                                        day: this.state.temp_day,
+                                        hour: this.state.temp_hour,
+                                        minute: this.state.temp_minute
+                                      };
+              // Save to storage
+              this.storeNotification(notification_data);
+
+              var new_state = this.get_resseted_time_state();
+              new_state.notification = notification_data;
+              this.setState(new_state);
+            }
+          );
         });
+      // If canceled
       } else if (action === TimePickerAndroid.dismissedAction) {
-        this.resetTimeState()
+        this.cancelNotification();
       }
     } catch ({code, message}) {
       console.warn(`Error in example: `, message);
     }
   }
 
+  cancelNotification() {
+    // Remove from AsyncStorage Notification if present
+    // Remove Notification
+    // Reset State
+    if (this.state.notification.id) {
+      this.unstoreNotification();
+      Notification.remove(this.state.notification.id);
+    }
+    var new_state = this.get_resseted_time_state();
+    new_state.notification = {};
+    this.setState(new_state);
+  }
+
+  get_resseted_time_state() {
+    return({
+      temp_year: null,
+      temp_month: null,
+      temp_day: null,
+      temp_hour: null,
+      temp_minute: null
+    });
+  }
+
+  // Notification Async Storage
+  getNotification(callback) {
+    AsyncStorage.getItem(`notification:${this.props.data.id}`).then(callback);
+  }
+
+  storeNotification(notification) {
+    AsyncStorage.setItem(`notification:${this.props.data.id}`, JSON.stringify(notification));
+  }
+
+  unstoreNotification() {
+    AsyncStorage.removeItem(`notification:${this.props.data.id}`);
+  }
+
+  // Renders:
   render() {
     return(
       <View style={style.container}>
         <View style={style.containerProfile}>
           <Image source={{uri: this.props.data.profile_picture}} style={style.containerProfileImage} />
           <Text style={style.profileText}>{this.props.data.username}</Text>
-          <View style={style.containerProfileTime}>
-            <Text style={style.profileTime}>
-              { this.renderBellIcon() }
-              {" "}
-              {Helper.getPublishDate(this.state.year, this.state.month, this.state.day, this.state.hour, this.state.minute)}
-            </Text>
-          </View>
+          {this.renderTime()}
         </View>
         <View style={style.containerImage}>
           <Image
@@ -183,14 +264,6 @@ class InstagramPost extends Component {
     );
   }
 
-  renderBellIcon() {
-    if (this.state.minute) {
-      return(
-        <Icon name="bell" />
-      );
-    }
-  }
-
   renderProgressBar() {
     if (this.state.downloading) {
       return(
@@ -202,6 +275,18 @@ class InstagramPost extends Component {
       );
     }
     return;
+  }
+
+  renderTime() {
+    if (this.state.notification.id) {
+      return(
+        <View style={style.containerProfileTime}>
+          <Text style={style.profileTime}>
+            <Icon name="bell" /> {" "} {Helper.getPublishDate(this.state.notification)}
+          </Text>
+        </View>
+      );
+    }
   }
 
   renderFooter() {
@@ -221,16 +306,24 @@ class InstagramPost extends Component {
     {
       return(
         <View style={style.containerDetails}>
-          <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+          <Icon.Button name="instagram" style={this.state.downloading ? style.containerPublishDisabled : style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
             <Text style={style.detailsPublish}>Publish</Text>
           </Icon.Button>
 
           <View style={style.containerDetailsMore}>
-            <TouchableNativeFeedback onPress={this.showDatePicker.bind(this)}>
-              <View style={style.containerDetailsMoreTouchable}>
-                <Icon name="clock-o" size={25} style={style.detailsMore} />
-              </View>
-            </TouchableNativeFeedback>
+            {
+              this.state.notification.id == null
+              ? <TouchableNativeFeedback onPress={this.showDatePicker.bind(this)}>
+                  <View style={style.containerDetailsMoreTouchable}>
+                    <Icon name="calendar" size={25} style={style.detailsMore} />
+                  </View>
+                </TouchableNativeFeedback>
+              : <TouchableNativeFeedback onPress={this.cancelNotification.bind(this)}>
+                  <View style={style.containerDetailsMoreTouchable}>
+                    <Icon name="calendar-times-o" size={25} style={style.detailsMore} />
+                  </View>
+                </TouchableNativeFeedback>
+            }
           </View>
         </View>
       );

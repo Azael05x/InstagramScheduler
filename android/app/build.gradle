@@ -125,9 +125,11 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-fs')
     compile project(':react-native-system-notification')
-    
+
     compile project(":react-native-device-info")
     compile fileTree(dir: "node_modules/react-native-device-info/android/libs", include: ["*.jar"])
+
+    compile project(':react-native-image-picker')
 }
 
 project.ext.vectoricons = [

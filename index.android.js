@@ -4,6 +4,7 @@
  */
 
 // adb reverse tcp:8081 tcp:8081
+// touch ~/.gradle/gradle.properties && echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
 // react-native run-android
 
 'use strict';
@@ -14,61 +15,57 @@ import React, {
 
 import {
   AppRegistry,
-  BackAndroid,
+  AsyncStorage,
   View,
-  AsyncStorage
+  Text
 } from 'react-native';
 
 var FileSystem = require('react-native-fs');
 var Notification = require('./app/helpers/notification');
 
-
-var SchedulerView = require('./app/views/scheduler-view');
+var AppNavigator = require('./app/navigators/app-navigator');
+var LoginNavigator = require('./app/navigators/login-navigator');
 var PublishView = require('./app/views/publish-view');
-var LoginView = require('./app/views/login-view');
 
 class InstagramScheduler extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      route: '',
-      route_props: {}
+      navigator: '',
+      navigator_props: {}
     };
 
     // AsyncStorage.removeItem("auth");
 
-    // Neccessary setup:
-    BackAndroid.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    // !! Neccessary setup:
     FileSystem.mkdir(FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app/");
 
-    // Routes:
-    // If came from Notification:
+    // !! Routes:
+    // If came from Notification then publish it:
     Notification.listen.bind(this, this.routePublishPhoto)();
+
     // Check Authentication
-    // If hadn't authenticated go to login route
-    // Else go to scheduler route
+    // If hadn't authenticated go to login navigator
+    // Else go to app navigator
     AsyncStorage.getItem("auth").then((response) => {
       if (response) {
-        AsyncStorage.getItem("images").then((response) => {
-          this.setState({
-            route: 'scheduler',
-            route_props: (JSON.parse(response) || [])
-          })
+        this.setState({
+          navigator: 'app'
         })
       } else {
         this.setState({
-          route: 'login'
+          navigator: 'login'
         });
       }
     });
   }
 
   onBackPress() {
-    switch (this.state.route) {
+    switch (this.state.navigator) {
       case 'publish':
         this.setState({
-          route: 'scheduler',
-          route_props: {}
+          navigator: 'app',
+          navigator_props: {}
         })
         return true;
         break;
@@ -80,33 +77,27 @@ class InstagramScheduler extends Component {
 
   routePublishPhoto(payload) {
     this.setState({
-      route: 'publish',
-      route_props: payload
+      navigator: 'publish',
+      navigator_props: payload
     });
   }
 
   render() {
-    if (this.state.route == 'scheduler')
-      return (
-        <SchedulerView images={this.state.route_props} />
-      );
-    else if (this.state.route == 'publish')
-      return (
-        <PublishView data={this.state.route_props} />
-      );
-    else if (this.state.route == 'login')
-      return (
-        <LoginView loggedIn={(() => {
-          this.setState({
-            route: 'scheduler'
-          });
-        }).bind(this)} />
-      );
+    switch (this.state.navigator) {
+      case 'app':
+        return <AppNavigator {...this.state.navigator_props} />
+      case 'login':
+        return <LoginNavigator {...this.state.navigator_props} />
+      case 'publish':
+        return <PublishView {...this.state.navigator_props} onBackPress={this.onBackPress.bind(this)} />
 
-    else
-      return (
-        <View />
-      )
+      default:
+        return (
+          <View>
+            <Text>Loading</Text>
+          </View>
+        );
+    }
   }
 }
 

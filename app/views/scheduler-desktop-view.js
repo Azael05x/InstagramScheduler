@@ -15,22 +15,30 @@ import {
 
 const DOMAIN = "https://schedule.ngrok.io";
 
-class SchedulerView extends Component {
+class SchedulerDesktopView extends Component {
   constructor(props) {
     super(props);
-    var react = this;
-    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
+    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
-      images: this.props.images,
-      dataSource: ds.cloneWithRows(this.props.images),
-      refreshing: this.props.images == 0
+      images: [],
+      dataSource: ds.cloneWithRows([]),
+      refreshing: false
     };
 
-    if (this.props.images == 0) {
-      this._onRefresh(false);
-    }
-  };
+    this.getImagesFromStorage((images) => {
+      var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+      this.setState({
+        images: images,
+        dataSource: ds.cloneWithRows(images),
+      });
+    });
+  }
+
+  getImagesFromStorage(callback) {
+    AsyncStorage.getItem("images").then((response) => callback(JSON.parse((response || '[]'))))
+  }
 
   _onRefresh(set_refreshing=true) {
     AsyncStorage.getItem("auth").then((auth) => {
@@ -74,12 +82,12 @@ class SchedulerView extends Component {
         dataSource={this.state.dataSource}
         initialListSize={3}
         pageSize={5}
-        renderRow={this.renderPost}
+        renderRow={this.renderPost.bind(this)}
         renderSeparator={this.renderSeperator}
         refreshControl={this.renderRefresh()}
         enableEmptySections={true} />
     )
-  };
+  }
 
   renderRefresh() {
     return (
@@ -105,4 +113,4 @@ class SchedulerView extends Component {
 }
 
 
-module.exports = SchedulerView;
+module.exports = SchedulerDesktopView;

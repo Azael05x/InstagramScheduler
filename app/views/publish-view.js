@@ -5,14 +5,20 @@ import React, {
   Component,
 } from 'react';
 
+import {
+  BackAndroid
+} from 'react-native';
+
 class PublishView extends Component {
   constructor(props) {
     super(props);
+
+    BackAndroid.addEventListener('hardwareBackPress', this.props.onBackPress);
   };
 
   render() {
     return (
-      <InstagramPost {...this.props} publish={true} />
+      <InstagramPost data={this.props} publish={true} />
     )
   };
 }

@@ -9,6 +9,7 @@ import com.rnfs.RNFSPackage;
 import io.neson.react.notification.NotificationPackage;
 import com.instagramscheduler.publish.*;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.imagepicker.ImagePickerPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,8 @@ public class MainActivity extends ReactActivity {
             new RNFSPackage(),
             new InstagramPublishPackage(this),
             new NotificationPackage(this),
-            new RNDeviceInfo()
+            new RNDeviceInfo(),
+            new ImagePickerPackage()
         );
     }
 }
