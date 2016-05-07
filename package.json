@@ -7,8 +7,9 @@
   },
   "dependencies": {
     "react": "^0.14.5",
-    "react-native": "^0.25.0-rc",
+    "react-native": "^0.25.1",
     "react-native-device-info": "^0.9.3",
+    "react-native-fileupload": "git+https://github.com/Azael05x/react-native-fileupload.git",
     "react-native-fs": "^1.3.0",
     "react-native-image-picker": "^0.18.15",
     "react-native-system-notification": "git+https://github.com/Azael05x/react-native-system-notification.git",

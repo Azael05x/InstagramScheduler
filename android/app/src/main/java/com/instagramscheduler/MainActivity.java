@@ -10,6 +10,7 @@ import io.neson.react.notification.NotificationPackage;
 import com.instagramscheduler.publish.*;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.imagepicker.ImagePickerPackage;
+import com.yoloci.fileupload.FileUploadPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,8 @@ public class MainActivity extends ReactActivity {
             new InstagramPublishPackage(this),
             new NotificationPackage(this),
             new RNDeviceInfo(),
-            new ImagePickerPackage()
+            new ImagePickerPackage(),
+            new FileUploadPackage()
         );
     }
 }

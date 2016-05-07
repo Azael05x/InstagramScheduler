@@ -130,6 +130,8 @@ dependencies {
     compile fileTree(dir: "node_modules/react-native-device-info/android/libs", include: ["*.jar"])
 
     compile project(':react-native-image-picker')
+
+    compile project(':react-native-fileupload')
 }
 
 project.ext.vectoricons = [

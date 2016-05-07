@@ -18,15 +18,13 @@ class MenuView extends Component {
 
   render() {
     return (
-      <View>
-        <Icon.Button name="desktop" onPress={() => this.props.navigator.push({name: 'SchedulerDesktopView', index: 1})} >
-          <Text>From Desktop</Text>
+      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
+        <Icon.Button name="clock-o" style={{ borderRadius: 0, height: 50, justifyContent: 'center' }} onPress={() => this.props.navigator.push({name: 'SchedulerView', index: 1})} >
+          <Text style={{color: 'white'}}>Schedule</Text>
         </Icon.Button>
-        <Icon.Button name="mobile" onPress={() => this.props.navigator.push({name: 'SchedulerMobileView', index: 1})}>
-          <Text>From Mobile</Text>
-        </Icon.Button>
-        <Icon.Button name="cog" onPress={() => this.props.navigator.push({name: 'SettingsView', index: 1})}>
-          <Text>Settings</Text>
+        <View style={{height: 10}}/>
+        <Icon.Button name="upload" style={{ borderRadius: 0, height: 50, justifyContent: 'center' }} onPress={() => this.props.navigator.push({name: 'UploadView', index: 1})}>
+          <Text style={{color: 'white'}}>Upload</Text>
         </Icon.Button>
       </View>
     )

@@ -24,10 +24,10 @@ module.exports = {
         </Icon.Button>
       )
   },
-  
+
   Title: function( route, navigator, index, navState ){
     return(
-      <Text style={{flex: 1, alignItems: 'center', textAlign: 'center'}}>Scheduler</Text>
+      <Text>Instagram Scheduler App</Text>
     )
   },
 

@@ -10,10 +10,9 @@ import {
   Text
 } from 'react-native';
 
-var AppNavigatorNode = require('./app-navigator-node');
 var MenuView = require('../views/menu-view');
-// var SchedulerMobileView = require('../views/scheduler-mobile-view');
-var SchedulerDesktopView = require('../views/scheduler-desktop-view');
+var SchedulerView = require('../views/scheduler-view');
+var UploadView = require('../views/upload-view');
 // var SettingsView = require('../views/settings-view');
 
 class AppNavigator extends Component {
@@ -26,11 +25,8 @@ class AppNavigator extends Component {
       <Navigator
         configureScene={() => Navigator.SceneConfigs.FloatFromRight}
         // initialRoute={{name: 'MenuView', index: 0}}
-        initialRoute={{name: 'SchedulerDesktopView', index: 0}}
+        initialRoute={{name: 'UploadView', index: 0}}
         renderScene={this._renderScene.bind(this)}
-        navigationBar={
-          <Navigator.NavigationBar routeMapper={ AppNavigatorNode } />
-        }
       />
     )
   };
@@ -38,13 +34,23 @@ class AppNavigator extends Component {
   _renderScene(route, navigator) {
     if (route.name == 'MenuView')
       return (
-        <View style={{marginTop: 50}}>
-          <MenuView navigator={navigator}/>
-        </View>
+        <MenuView navigator={navigator}/>
       );
-    else if (route.name == 'SchedulerDesktopView')
+    else if (route.name == 'SchedulerView')
       return (
-        <SchedulerDesktopView onBack={() => console.warn('back pressed')}/>
+        <SchedulerView onBack={() => {
+          if (route.index > 0) {
+            navigator.pop();
+          }
+        }} />
+      );
+    else if (route.name == 'UploadView')
+      return (
+        <UploadView onBack={() => {
+          if (route.index > 0) {
+            navigator.pop();
+          }
+        }} />
       );
 
     else

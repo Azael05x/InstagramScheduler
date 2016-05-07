@@ -13,9 +13,11 @@ import {
   AsyncStorage
 } from 'react-native';
 
+var Icon = require('react-native-vector-icons/FontAwesome');
+
 const DOMAIN = "https://schedule.ngrok.io";
 
-class SchedulerDesktopView extends Component {
+class SchedulerView extends Component {
   constructor(props) {
     super(props);
 
@@ -85,6 +87,7 @@ class SchedulerDesktopView extends Component {
         renderRow={this.renderPost.bind(this)}
         renderSeparator={this.renderSeperator}
         refreshControl={this.renderRefresh()}
+        renderHeader={this.renderHeader.bind(this)}
         enableEmptySections={true} />
     )
   }
@@ -95,6 +98,22 @@ class SchedulerDesktopView extends Component {
         refreshing={this.state.refreshing}
         onRefresh={this._onRefresh.bind(this)}
         colors={['tomato', 'forestgreen', 'deepskyblue']} />
+    );
+  }
+
+  renderHeader() {
+    return (
+      <View style={{flexDirection:'row', height: 40}}>
+        <View style={{flex: 1, alignItems: 'flex-start'}}>
+          <Icon.Button name="chevron-left" onPress={this.props.onBack} style={{borderRadius: 0, height: 40}}>
+            <Text style={{color: 'white'}}> Back </Text>
+          </Icon.Button>
+        </View>
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
+          <Text> Scheduler </Text>
+        </View>
+        <View style={{flex: 1}} />
+      </View>
     );
   }
 
@@ -113,4 +132,4 @@ class SchedulerDesktopView extends Component {
 }
 
 
-module.exports = SchedulerDesktopView;
+module.exports = SchedulerView;
