@@ -1,5 +1,6 @@
 'use strict';
 var InstagramPost = require('../components/instagram-post');
+var General = require('../helpers/general');
 
 import React, {
   Component,
@@ -45,7 +46,7 @@ class SchedulerView extends Component {
   _onRefresh(set_refreshing=true) {
     AsyncStorage.getItem("auth").then((auth) => {
       auth = JSON.parse(auth);
-      fetch(DOMAIN + "/mobile/pics" + this.getParams(auth), {
+      fetch(DOMAIN + "/mobile/pics" + General.getAuthParams(auth), {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -74,16 +75,10 @@ class SchedulerView extends Component {
     }
   }
 
-  getParams(auth_object) {
-    return "?user_id=" + auth_object.user_id + "&token=" + auth_object.token;
-  }
-
   render() {
     return (
       <ListView
         dataSource={this.state.dataSource}
-        initialListSize={3}
-        pageSize={5}
         renderRow={this.renderPost.bind(this)}
         renderSeparator={this.renderSeperator}
         refreshControl={this.renderRefresh()}

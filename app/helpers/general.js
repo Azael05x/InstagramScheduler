@@ -10,5 +10,9 @@ module.exports = {
     else {
       return "";
     }
+  },
+
+  getAuthParams(auth_object) {
+    return "?user_id=" + auth_object.user_id + "&token=" + auth_object.token;
   }
 };

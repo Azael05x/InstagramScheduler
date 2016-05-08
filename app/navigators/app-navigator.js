@@ -23,9 +23,8 @@ class AppNavigator extends Component {
   render() {
     return (
       <Navigator
-        configureScene={() => Navigator.SceneConfigs.FloatFromRight}
-        // initialRoute={{name: 'MenuView', index: 0}}
-        initialRoute={{name: 'UploadView', index: 0}}
+        configureScene={() => Navigator.SceneConfigs.HorizontalSwipeJump}
+        initialRoute={{name: 'SchedulerView', index: 0}}
         renderScene={this._renderScene.bind(this)}
       />
     )
@@ -46,7 +45,7 @@ class AppNavigator extends Component {
       );
     else if (route.name == 'UploadView')
       return (
-        <UploadView onBack={() => {
+        <UploadView action={route.action} onBack={() => {
           if (route.index > 0) {
             navigator.pop();
           }

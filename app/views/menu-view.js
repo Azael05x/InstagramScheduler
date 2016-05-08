@@ -23,8 +23,12 @@ class MenuView extends Component {
           <Text style={{color: 'white'}}>Schedule</Text>
         </Icon.Button>
         <View style={{height: 10}}/>
-        <Icon.Button name="upload" style={{ borderRadius: 0, height: 50, justifyContent: 'center' }} onPress={() => this.props.navigator.push({name: 'UploadView', index: 1})}>
-          <Text style={{color: 'white'}}>Upload</Text>
+        <Icon.Button name="upload" style={{ borderRadius: 0, height: 50, justifyContent: 'center' }} onPress={() => this.props.navigator.push({name: 'UploadView', index: 1, action: 'storage'})}>
+          <Text style={{color: 'white'}}>Upload from Storage</Text>
+        </Icon.Button>
+        <View style={{height: 10}}/>
+        <Icon.Button name="camera" style={{ borderRadius: 0, height: 50, justifyContent: 'center' }} onPress={() => this.props.navigator.push({name: 'UploadView', index: 1, action: 'camera'})}>
+          <Text style={{color: 'white'}}>Capture with Camera</Text>
         </Icon.Button>
       </View>
     )

@@ -21,7 +21,8 @@ import {
   DatePickerAndroid,
   DeviceEventEmitter,
   ProgressBarAndroid,
-  AsyncStorage
+  AsyncStorage,
+  TextInput
 } from 'react-native';
 
 const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app";
@@ -39,7 +40,10 @@ class InstagramPost extends Component {
       temp_day: null,
       temp_hour: null,
       temp_minute: null,
-      notification: {}
+      notification: {},
+
+      caption_open: false,
+      caption: null
     };
   }
 
@@ -243,6 +247,27 @@ class InstagramPost extends Component {
     AsyncStorage.removeItem(`notification:${this.props.data.id}`);
   }
 
+  // Caption:
+  openCaptionBox() {
+    this.setState({
+      caption_open: !this.state.caption_open
+    }, () => {
+      if (this.state.caption_open == true && this.state.caption == null) {
+        AsyncStorage.getItem(`custom_caption:${this.props.data.id}`).then((response) => {
+          if (response) {
+            response = JSON.parse(response);
+            var caption = response.caption || '';
+            this.setState({caption});
+          }
+        })
+      }
+    })
+  }
+
+  saveCaption() {
+    AsyncStorage.setItem(`custom_caption:${this.props.data.id}`, JSON.stringify({caption: this.state.caption}));
+  }
+
   // Renders:
   render() {
     return(
@@ -260,6 +285,7 @@ class InstagramPost extends Component {
         </View>
         { this.renderFooter() }
         { this.renderProgressBar() }
+        { this.renderCaptionInput() }
       </View>
     );
   }
@@ -289,6 +315,20 @@ class InstagramPost extends Component {
     }
   }
 
+  renderCaptionInput() {
+    if (this.state.caption_open) {
+      return(
+        <View>
+          <TextInput
+            style={{height: 40, borderColor: 'gray', borderWidth: 1}}
+            onChangeText={(caption) => this.setState({caption}, this.saveCaption)}
+            value={this.state.caption}
+            />
+        </View>
+      );
+    }
+  }
+
   renderFooter() {
     if(this.props.publish == true)
     {
@@ -308,6 +348,10 @@ class InstagramPost extends Component {
         <View style={style.containerDetails}>
           <Icon.Button name="instagram" style={this.state.downloading ? style.containerPublishDisabled : style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
             <Text style={style.detailsPublish}>Publish</Text>
+          </Icon.Button>
+
+          <Icon.Button name="comment" onPress={this.openCaptionBox.bind(this)}>
+            <Text style={style.detailsPublish}>Caption</Text>
           </Icon.Button>
 
           <View style={style.containerDetailsMore}>
