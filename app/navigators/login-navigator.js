@@ -8,6 +8,8 @@ import {
   Navigator
 } from 'react-native';
 
+var LoginView = require('../views/login-view');
+
 class LoginNavigator extends Component {
   constructor(props) {
     super(props);
@@ -18,21 +20,7 @@ class LoginNavigator extends Component {
       <Navigator
         initialRoute={{name: 'My First Scene', index: 0}}
         renderScene={(route, navigator) =>
-          <MySceneComponent
-            name={route.name}
-            onForward={() => {
-              var nextIndex = route.index + 1;
-              navigator.push({
-                name: 'Scene ' + nextIndex,
-                index: nextIndex,
-              });
-            }}
-            onBack={() => {
-              if (route.index > 0) {
-                navigator.pop();
-              }
-            }}
-          />
+          <LoginView loggedIn={this.props.onLoggedIn} />
         }
       />
     )
@@ -40,13 +28,3 @@ class LoginNavigator extends Component {
 }
 
 module.exports = LoginNavigator;
-
-
-// else if (this.state.route == 'login')
-//   return (
-//     <LoginView loggedIn={(() => {
-//       this.setState({
-//         route: 'scheduler'
-//       });
-//     }).bind(this)} />
-//   );

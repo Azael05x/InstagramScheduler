@@ -13,7 +13,6 @@ import {
 var MenuView = require('../views/menu-view');
 var SchedulerView = require('../views/scheduler-view');
 var UploadView = require('../views/upload-view');
-// var SettingsView = require('../views/settings-view');
 
 class AppNavigator extends Component {
   constructor(props) {
@@ -24,8 +23,19 @@ class AppNavigator extends Component {
     return (
       <Navigator
         configureScene={() => Navigator.SceneConfigs.HorizontalSwipeJump}
-        initialRoute={{name: 'SchedulerView', index: 0}}
+        initialRoute={{name: 'MenuView', index: 0}}
         renderScene={this._renderScene.bind(this)}
+        onItemRef={(ref, index, route) => {
+            console.warn('here');
+            route.sceneRef = ref;
+          }
+        }
+        onDidFocus={
+          function(route) {
+            if (route.sceneRef && route.sceneRef.sceneDidFocus)
+              route.sceneRef.sceneDidFocus();
+          }
+        }
       />
     )
   };

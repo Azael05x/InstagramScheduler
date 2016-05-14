@@ -82,20 +82,25 @@ class InstagramScheduler extends Component {
     });
   }
 
+  onLoggedIn() {
+    this.setState({
+      navigator: 'app',
+      navigator_props: {}
+    });
+  }
+
   render() {
     switch (this.state.navigator) {
       case 'app':
         return <AppNavigator {...this.state.navigator_props} />
       case 'login':
-        return <LoginNavigator {...this.state.navigator_props} />
+        return <LoginNavigator {...this.state.navigator_props} onLoggedIn={this.onLoggedIn.bind(this)} />
       case 'publish':
         return <PublishView {...this.state.navigator_props} onBackPress={this.onBackPress.bind(this)} />
 
       default:
         return (
-          <View>
-            <Text>Loading</Text>
-          </View>
+          <View style={{backgroundColor: '#34495e'}}/>
         );
     }
   }

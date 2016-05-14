@@ -22,7 +22,9 @@ import {
   DeviceEventEmitter,
   ProgressBarAndroid,
   AsyncStorage,
-  TextInput
+  TextInput,
+  ToastAndroid,
+  Clipboard
 } from 'react-native';
 
 const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app";
@@ -97,7 +99,7 @@ class InstagramPost extends Component {
 
   // Download file and open Instagram intent
   download() {
-    var link = this.props.data.image;
+    var link = this.props.data.cdn;
 
     // Download image from URL
     FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(this)).then(() => {
@@ -118,10 +120,17 @@ class InstagramPost extends Component {
 
   // Checks if file for this image exists and then open Instagram Intent
   openInstagramIntent() {
-    FileSystem.exists(this.getDownloadPath()).then((exists) => {
-      if (exists) {
-        NativeModules.InstagramPublish.share(this.getDownloadPath());
+    AsyncStorage.getItem(`custom_caption:${this.props.data.id}`).then((response) => {
+      if (response) {
+        Clipboard.setString(JSON.parse(response).caption || '');
+        ToastAndroid.show('We have copied caption to clipboard, just paste it in Instagram', ToastAndroid.LONG)
       }
+
+      FileSystem.exists(this.getDownloadPath()).then((exists) => {
+        if (exists) {
+          NativeModules.InstagramPublish.share(this.getDownloadPath());
+        }
+      });
     });
   }
 
@@ -279,7 +288,7 @@ class InstagramPost extends Component {
         </View>
         <View style={style.containerImage}>
           <Image
-            source={{uri: this.props.data.image}}
+            source={{uri: this.props.data.cdn}}
             style={style.thumbnail}
           />
         </View>
@@ -323,6 +332,7 @@ class InstagramPost extends Component {
             style={{height: 40, borderColor: 'gray', borderWidth: 1}}
             onChangeText={(caption) => this.setState({caption}, this.saveCaption)}
             value={this.state.caption}
+            placeholder={"Write your caption here"}
             />
         </View>
       );
@@ -334,10 +344,10 @@ class InstagramPost extends Component {
     {
       return(
         this.state.downloading ?
-          <Icon.Button name="instagram" style={style.containerPublishDisabled}>
+          <Icon.Button name="instagram" borderRadius={0} style={style.containerPublishDisabled}>
             <Text style={style.detailsPublish}>Publish</Text>
           </Icon.Button>
-        : <Icon.Button name="instagram" style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+        : <Icon.Button name="instagram" borderRadius={0} style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
             <Text style={style.detailsPublish}>Publish</Text>
           </Icon.Button>
       );
@@ -345,29 +355,25 @@ class InstagramPost extends Component {
     else
     {
       return(
-        <View style={style.containerDetails}>
-          <Icon.Button name="instagram" style={this.state.downloading ? style.containerPublishDisabled : style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
-            <Text style={style.detailsPublish}>Publish</Text>
-          </Icon.Button>
+        <View style={{flex: 1, height: 50, backgroundColor: '#2ecc71'}}>
 
-          <Icon.Button name="comment" onPress={this.openCaptionBox.bind(this)}>
-            <Text style={style.detailsPublish}>Caption</Text>
-          </Icon.Button>
+          <View style={style.containerDetails}>
+            <Icon.Button name="instagram" borderRadius={0} style={this.state.downloading ? style.containerPublishDisabled : style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+              <Text style={style.detailsPublish}>Publish</Text>
+            </Icon.Button>
 
-          <View style={style.containerDetailsMore}>
-            {
-              this.state.notification.id == null
-              ? <TouchableNativeFeedback onPress={this.showDatePicker.bind(this)}>
-                  <View style={style.containerDetailsMoreTouchable}>
-                    <Icon name="calendar" size={25} style={style.detailsMore} />
-                  </View>
-                </TouchableNativeFeedback>
-              : <TouchableNativeFeedback onPress={this.cancelNotification.bind(this)}>
-                  <View style={style.containerDetailsMoreTouchable}>
-                    <Icon name="calendar-times-o" size={25} style={style.detailsMore} />
-                  </View>
-                </TouchableNativeFeedback>
-            }
+            <Icon.Button
+                        name={this.state.notification.id == null ? "calendar" : "calendar-times-o"}
+                        borderRadius={0}
+                        style={style.dateButton}
+                        onPress={this.state.notification.id == null ? this.showDatePicker.bind(this) : this.cancelNotification.bind(this)}>
+              <Text style={style.detailsPublish}>{ this.state.notification.id == null ? "Schedule" : "Unschedule" }</Text>
+            </Icon.Button>
+
+            <Icon.Button name="comment" style={style.commentButton} borderRadius={0} onPress={this.openCaptionBox.bind(this)}>
+              <Text style={style.detailsPublish}>Caption</Text>
+            </Icon.Button>
+
           </View>
         </View>
       );

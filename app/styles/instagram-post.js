@@ -44,50 +44,53 @@ module.exports = StyleSheet.create({
       },
     containerDetails: {
       height: 50,
-      flex: 1,
-      alignItems: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'stretch',
       flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignSelf: 'stretch'
     },
       containerPublish: {
         height: 50,
-        paddingLeft: 20,
-        paddingRight: 20,
-        backgroundColor: '#2d6599',
+        backgroundColor: '#34495e',
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 0
+        alignSelf: 'stretch',
+        borderRadius: 0,
+        paddingLeft: 12,
+        paddingRight: 12,
+        justifyContent: 'center'
       },
         detailsPublish: {
           color: '#fff',
           fontWeight: '500',
+          textAlign: 'center'
         },
       containerPublishDisabled: {
         height: 50,
-        paddingLeft: 20,
-        paddingRight: 20,
         backgroundColor: '#7f8c8d',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 0
+        alignSelf: 'stretch',
+        borderRadius: 0,
+        paddingLeft: 12,
+        paddingRight: 12,
+        justifyContent: 'center'
       },
-      containerDetailsMore: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
+      commentButton: {
+        borderRadius: 0,
         height: 50,
+        alignSelf: 'stretch',
+        paddingLeft: 12,
+        paddingRight: 12,
+        backgroundColor: "#34495e",
+        justifyContent: 'center'
       },
-        containerDetailsMoreTouchable: {
-          height: 50,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'row',
-          backgroundColor: "#ecf0f1"
-        },
-          detailsMore: {
-            marginRight: 15,
-            marginLeft: 15,
-          },
+      dateButton: {
+        borderRadius: 0,
+        height: 50,
+        alignSelf: 'stretch',
+        paddingLeft: 12,
+        paddingRight: 12,
+        backgroundColor: "#2ecc71",
+        justifyContent: 'center'
+      }
+
 });
