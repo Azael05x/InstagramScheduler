@@ -46,7 +46,7 @@ var imagePickerCallback = (response) => {
     ToastAndroid.show('You cancelled image picker', ToastAndroid.LONG)
   }
   else if (response.error) {
-    ToastAndroid.show('ImagePickerManager Error: `JSON.stringify(response.error)`', ToastAndroid.LONG)
+    ToastAndroid.show('ImagePickerManager Error: ' + JSON.stringify(response.error), ToastAndroid.LONG)
   }
   else {
     if (response != null) {
@@ -89,7 +89,6 @@ var uploadImage = (response) => {
             AsyncStorage.setItem("images", JSON.stringify(json));
           });
       }
-
     });
   });
 }

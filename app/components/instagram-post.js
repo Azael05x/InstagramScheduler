@@ -94,7 +94,7 @@ class InstagramPost extends Component {
   }
 
   getDownloadPath() {
-    return DOWNLOAD_FOLDER_PATH + "/photo-" + this.props.data.id + ".jpg"
+    return DOWNLOAD_FOLDER_PATH + "/photo-" + this.props.data.id + "-" + this.props.data.media_id + ".jpg"
   }
 
   // Download file and open Instagram intent
@@ -156,8 +156,6 @@ class InstagramPost extends Component {
           temp_day: day
         });
       // If pressed canceled
-      } else {
-        this.cancelNotification();
       }
     } catch ({code, message}) {
       console.warn(`Error in example: `, message);
@@ -211,9 +209,6 @@ class InstagramPost extends Component {
             }
           );
         });
-      // If canceled
-      } else if (action === TimePickerAndroid.dismissedAction) {
-        this.cancelNotification();
       }
     } catch ({code, message}) {
       console.warn(`Error in example: `, message);

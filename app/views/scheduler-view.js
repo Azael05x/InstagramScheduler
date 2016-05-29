@@ -96,22 +96,6 @@ class SchedulerView extends Component {
     );
   }
 
-  // renderHeader() {
-  //   return (
-  //     <View style={{flexDirection:'row', height: 40}}>
-  //       <View style={{flex: 1, alignItems: 'flex-start'}}>
-  //         <Icon.Button name="chevron-left" onPress={this.props.onBack} style={{borderRadius: 0, height: 40}}>
-  //           <Text style={{color: 'white'}}> Back </Text>
-  //         </Icon.Button>
-  //       </View>
-  //       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
-  //         <Text> Scheduler </Text>
-  //       </View>
-  //       <View style={{flex: 1}} />
-  //     </View>
-  //   );
-  // }
-
   renderSeperator(sectionID, rowID) {
     return(
       <View key={sectionID+rowID} style={{height: 4}} />

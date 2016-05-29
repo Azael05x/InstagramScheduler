@@ -37,10 +37,16 @@ class MenuView extends Component {
             <Text style={{color: '#2ecc71'}}>Upload from Storage</Text>
           </Icon.Button>
         </View>
-          <View style={{height: 10}}/>
+        <View style={{height: 10}}/>
         <View>
           <Icon.Button name="camera" color={'#2ecc71'} borderRadius={100} backgroundColor={'#34495e'} style={[style.menu_button, style.menu_button_outer]} onPress={PickerUpload.fromCamera}>
             <Text style={{color: '#2ecc71'}}>Capture with Camera</Text>
+          </Icon.Button>
+        </View>
+        <View style={{height: 50}}/>
+        <View>
+          <Icon.Button name="sign-out" color={'#2ecc71'} borderRadius={100} backgroundColor={'#34495e'} style={[style.menu_button, style.menu_button_outer]} onPress={this.props.onLogOut}>
+            <Text style={{color: '#2ecc71'}}>Sign Out</Text>
           </Icon.Button>
         </View>
       </View>

@@ -12,7 +12,7 @@ import {
 
 var MenuView = require('../views/menu-view');
 var SchedulerView = require('../views/scheduler-view');
-var UploadView = require('../views/upload-view');
+var PublishView = require('../views/publish-view');
 
 class AppNavigator extends Component {
   constructor(props) {
@@ -43,7 +43,7 @@ class AppNavigator extends Component {
   _renderScene(route, navigator) {
     if (route.name == 'MenuView')
       return (
-        <MenuView navigator={navigator}/>
+        <MenuView navigator={navigator} onLogOut={this.props.onLogOut}/>
       );
     else if (route.name == 'SchedulerView')
       return (
@@ -55,7 +55,7 @@ class AppNavigator extends Component {
       );
     else if (route.name == 'UploadView')
       return (
-        <UploadView action={route.action} onBack={() => {
+        <PublishView action={route.action} onBack={() => {
           if (route.index > 0) {
             navigator.pop();
           }

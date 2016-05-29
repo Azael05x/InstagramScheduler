@@ -49,9 +49,11 @@ class InstagramScheduler extends Component {
     // Else go to app navigator
     AsyncStorage.getItem("auth").then((response) => {
       if (response) {
-        this.setState({
-          navigator: 'app'
-        })
+        if (this.state.navigator != "publish") {
+          this.setState({
+            navigator: 'app'
+          })
+        }
       } else {
         this.setState({
           navigator: 'login'
@@ -89,10 +91,21 @@ class InstagramScheduler extends Component {
     });
   }
 
+  onLogOut() {
+    AsyncStorage.removeItem("auth").then((response) => {
+      AsyncStorage.removeItem("images");
+
+      this.setState({
+        navigator: 'login',
+        navigator_props: {}
+      })
+    });
+  }
+
   render() {
     switch (this.state.navigator) {
       case 'app':
-        return <AppNavigator {...this.state.navigator_props} />
+        return <AppNavigator {...this.state.navigator_props} onLogOut={this.onLogOut.bind(this)}/>
       case 'login':
         return <LoginNavigator {...this.state.navigator_props} onLoggedIn={this.onLoggedIn.bind(this)} />
       case 'publish':
