@@ -80,7 +80,16 @@ module.exports = StyleSheet.create({
         alignSelf: 'stretch',
         paddingLeft: 12,
         paddingRight: 12,
-        backgroundColor: "#34495e",
+        backgroundColor: "#7f8c8d",
+        justifyContent: 'center'
+      },
+      trashButton: {
+        borderRadius: 0,
+        height: 50,
+        alignSelf: 'stretch',
+        paddingLeft: 12,
+        paddingRight: 12,
+        backgroundColor: "#e74c3c",
         justifyContent: 'center'
       },
       dateButton: {

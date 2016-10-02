@@ -43,7 +43,7 @@ class AppNavigator extends Component {
   _renderScene(route, navigator) {
     if (route.name == 'MenuView')
       return (
-        <MenuView navigator={navigator} onLogOut={this.props.onLogOut}/>
+        <MenuView navigator={navigator}/>
       );
     else if (route.name == 'SchedulerView')
       return (

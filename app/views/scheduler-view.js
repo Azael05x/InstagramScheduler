@@ -16,8 +16,6 @@ import {
 
 var Icon = require('react-native-vector-icons/FontAwesome');
 
-const DOMAIN = "https://schedule.ngrok.io";
-
 class SchedulerView extends Component {
   constructor(props) {
     super(props);
@@ -31,7 +29,6 @@ class SchedulerView extends Component {
 
     this.getImagesFromStorage((images) => {
       var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
       this.setState({
         images: images,
         dataSource: ds.cloneWithRows(images),
@@ -43,36 +40,22 @@ class SchedulerView extends Component {
     AsyncStorage.getItem("images").then((response) => callback(JSON.parse((response || '[]'))))
   }
 
-  _onRefresh(set_refreshing=true) {
-    AsyncStorage.getItem("auth").then((auth) => {
-      auth = JSON.parse(auth);
-      fetch(DOMAIN + "/mobile/pics" + General.getAuthParams(auth), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        }
-      }).then((response) => {
-        return response.json();
-      }).then((json) => {
-        var images = json.images;
-        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+  handleDelete(id) {
+    AsyncStorage.getItem('images').then((images) => {
+      images = JSON.parse(images);
 
-        AsyncStorage.setItem("images", JSON.stringify(images));
+      images = images.filter((element) => {
+        return element.id != id;
+      });
 
-        this.setState({
-          refreshing: false,
-          images: images,
-          dataSource: ds.cloneWithRows(images)
-        });
+      AsyncStorage.setItem('images', JSON.stringify(images));
+
+      var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+      this.setState({
+        images: images,
+        dataSource: ds.cloneWithRows(images),
       });
     });
-
-    if (set_refreshing) {
-      this.setState({
-        refreshing: true
-      });
-    }
   }
 
   render() {
@@ -81,19 +64,8 @@ class SchedulerView extends Component {
         dataSource={this.state.dataSource}
         renderRow={this.renderPost.bind(this)}
         renderSeparator={this.renderSeperator}
-        refreshControl={this.renderRefresh()}
-        // renderHeader={this.renderHeader.bind(this)}
         enableEmptySections={true} />
     )
-  }
-
-  renderRefresh() {
-    return (
-      <RefreshControl
-        refreshing={this.state.refreshing}
-        onRefresh={this._onRefresh.bind(this)}
-        colors={['tomato', 'forestgreen', 'deepskyblue']} />
-    );
   }
 
   renderSeperator(sectionID, rowID) {
@@ -104,7 +76,7 @@ class SchedulerView extends Component {
 
   renderPost(post) {
     return(
-      <InstagramPost data={post} />
+      <InstagramPost data={post} onDelete={() => this.handleDelete.bind(this, post.id)() } />
     );
   };
 

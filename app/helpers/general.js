@@ -4,7 +4,7 @@ module.exports = {
   },
 
   getPublishDate(notification) {
-    if (notification.minute) {
+    if (notification.year) {
       return `${this.zeroFill(notification.day, 2)}/${this.zeroFill(notification.month+1, 2)}/${notification.year} ${this.zeroFill(notification.hour, 2)}:${this.zeroFill(notification.minute, 2)}`
     }
     else {

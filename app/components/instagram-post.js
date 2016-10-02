@@ -20,14 +20,11 @@ import {
   TimePickerAndroid,
   DatePickerAndroid,
   DeviceEventEmitter,
-  ProgressBarAndroid,
   AsyncStorage,
   TextInput,
   ToastAndroid,
   Clipboard
 } from 'react-native';
-
-const DOWNLOAD_FOLDER_PATH = FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app";
 
 class InstagramPost extends Component {
   constructor(props) {
@@ -35,8 +32,6 @@ class InstagramPost extends Component {
 
     // Initial State
     this.state = {
-      progress: 0,
-      downloading: false,
       temp_year: null,
       temp_month: null,
       temp_day: null,
@@ -78,44 +73,14 @@ class InstagramPost extends Component {
   // Publish on Instagram:
   publishOnInstagram() {
     // Get bool if file exists:
-    FileSystem.exists(this.getDownloadPath()).then((exists) => {
+    FileSystem.exists(this.props.data.path).then((exists) => {
       // If file exists then: open Instagram Intent for sharing
       if (exists) {
         this.openInstagramIntent();
-      // Download image, because file is needed for Instagram Share Intent action
       } else {
-        this.download();
-        this.setState({
-          progress: 0,
-          downloading: true
-        });
+        ToastAndroid.show('Image not present', ToastAndroid.LONG);
       }
     });
-  }
-
-  getDownloadPath() {
-    return DOWNLOAD_FOLDER_PATH + "/photo-" + this.props.data.id + "-" + this.props.data.media_id + ".jpg"
-  }
-
-  // Download file and open Instagram intent
-  download() {
-    var link = this.props.data.cdn;
-
-    // Download image from URL
-    FileSystem.downloadFile(link, this.getDownloadPath(), function(){}, this.updateProgress.bind(this)).then(() => {
-      // Set resseting state and open Instagram Intent
-      this.setState({
-        downloading: false,
-        progress: 0
-      }, this.openInstagramIntent);
-    });
-  }
-
-  // Update Progress of download bar
-  updateProgress(progress) {
-    this.setState({
-      progress: (progress.bytesWritten / progress.contentLength)
-    })
   }
 
   // Checks if file for this image exists and then open Instagram Intent
@@ -126,9 +91,9 @@ class InstagramPost extends Component {
         ToastAndroid.show('We have copied caption to clipboard, just paste it in Instagram', ToastAndroid.LONG)
       }
 
-      FileSystem.exists(this.getDownloadPath()).then((exists) => {
+      FileSystem.exists(this.props.data.path).then((exists) => {
         if (exists) {
-          NativeModules.InstagramPublish.share(this.getDownloadPath());
+          NativeModules.InstagramPublish.share(this.props.data.path);
         }
       });
     });
@@ -272,39 +237,29 @@ class InstagramPost extends Component {
     AsyncStorage.setItem(`custom_caption:${this.props.data.id}`, JSON.stringify({caption: this.state.caption}));
   }
 
+  handleDelete() {
+    AsyncStorage.removeItem(`custom_caption:${this.props.data.id}`);
+    this.cancelNotification()
+    this.props.onDelete();
+  }
+
   // Renders:
   render() {
     return(
       <View style={style.container}>
         <View style={style.containerProfile}>
-          <Image source={{uri: this.props.data.profile_picture}} style={style.containerProfileImage} />
-          <Text style={style.profileText}>{this.props.data.username}</Text>
           {this.renderTime()}
         </View>
         <View style={style.containerImage}>
           <Image
-            source={{uri: this.props.data.cdn}}
+            source={{uri: this.props.data.uri}}
             style={style.thumbnail}
           />
         </View>
         { this.renderFooter() }
-        { this.renderProgressBar() }
         { this.renderCaptionInput() }
       </View>
     );
-  }
-
-  renderProgressBar() {
-    if (this.state.downloading) {
-      return(
-        <ProgressBarAndroid
-          progress={this.state.progress}
-          indeterminate={false}
-          styleAttr="Horizontal"
-          color="darkslateblue" />
-      );
-    }
-    return;
   }
 
   renderTime() {
@@ -338,37 +293,40 @@ class InstagramPost extends Component {
     if(this.props.publish == true)
     {
       return(
-        this.state.downloading ?
-          <Icon.Button name="instagram" borderRadius={0} style={style.containerPublishDisabled}>
+        <Icon.Button name="instagram" borderRadius={0} style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
             <Text style={style.detailsPublish}>Publish</Text>
-          </Icon.Button>
-        : <Icon.Button name="instagram" borderRadius={0} style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
-            <Text style={style.detailsPublish}>Publish</Text>
-          </Icon.Button>
+        </Icon.Button>
       );
     }
     else
     {
       return(
-        <View style={{flex: 1, height: 50, backgroundColor: '#2ecc71'}}>
+        <View>
+          <View style={{flex: 1, height: 50, backgroundColor: '#2ecc71'}}>
 
-          <View style={style.containerDetails}>
-            <Icon.Button name="instagram" borderRadius={0} style={this.state.downloading ? style.containerPublishDisabled : style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
-              <Text style={style.detailsPublish}>Publish</Text>
-            </Icon.Button>
+            <View style={style.containerDetails}>
+              <Icon.Button name="instagram" borderRadius={0} style={style.containerPublish} onPress={this.publishOnInstagram.bind(this)}>
+                <Text style={style.detailsPublish}>Publish</Text>
+              </Icon.Button>
 
-            <Icon.Button
-                        name={this.state.notification.id == null ? "calendar" : "calendar-times-o"}
-                        borderRadius={0}
-                        style={style.dateButton}
-                        onPress={this.state.notification.id == null ? this.showDatePicker.bind(this) : this.cancelNotification.bind(this)}>
-              <Text style={style.detailsPublish}>{ this.state.notification.id == null ? "Schedule" : "Unschedule" }</Text>
-            </Icon.Button>
+              <Icon.Button
+                          name={this.state.notification.id == null ? "calendar" : "calendar-times-o"}
+                          borderRadius={0}
+                          style={style.dateButton}
+                          onPress={this.state.notification.id == null ? this.showDatePicker.bind(this) : this.cancelNotification.bind(this)}>
+                <Text style={style.detailsPublish}>{ this.state.notification.id == null ? "Schedule" : "Unschedule" }</Text>
+              </Icon.Button>
 
+              <Icon.Button name="trash" style={style.trashButton} borderRadius={0} onPress={this.handleDelete.bind(this)}>
+                <Text style={style.detailsPublish}>Delete</Text>
+              </Icon.Button>
+
+            </View>
+          </View>
+          <View>
             <Icon.Button name="comment" style={style.commentButton} borderRadius={0} onPress={this.openCaptionBox.bind(this)}>
               <Text style={style.detailsPublish}>Caption</Text>
             </Icon.Button>
-
           </View>
         </View>
       );

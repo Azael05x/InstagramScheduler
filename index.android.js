@@ -15,27 +15,24 @@ import React, {
 
 import {
   AppRegistry,
-  AsyncStorage,
   View,
-  Text
+  Text,
+  AsyncStorage
 } from 'react-native';
 
 var FileSystem = require('react-native-fs');
 var Notification = require('./app/helpers/notification');
 
 var AppNavigator = require('./app/navigators/app-navigator');
-var LoginNavigator = require('./app/navigators/login-navigator');
 var PublishView = require('./app/views/publish-view');
 
 class InstagramScheduler extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      navigator: '',
+      navigator: 'app',
       navigator_props: {}
     };
-
-    // AsyncStorage.removeItem("auth");
 
     // !! Neccessary setup:
     FileSystem.mkdir(FileSystem.PicturesDirectoryPath + "/instagram-scheduler-app/");
@@ -43,38 +40,14 @@ class InstagramScheduler extends Component {
     // !! Routes:
     // If came from Notification then publish it:
     Notification.listen.bind(this, this.routePublishPhoto)();
-
-    // Check Authentication
-    // If hadn't authenticated go to login navigator
-    // Else go to app navigator
-    AsyncStorage.getItem("auth").then((response) => {
-      if (response) {
-        if (this.state.navigator != "publish") {
-          this.setState({
-            navigator: 'app'
-          })
-        }
-      } else {
-        this.setState({
-          navigator: 'login'
-        });
-      }
-    });
   }
 
   onBackPress() {
-    switch (this.state.navigator) {
-      case 'publish':
-        this.setState({
-          navigator: 'app',
-          navigator_props: {}
-        })
-        return true;
-        break;
-      default:
-        return false;
-        break;
-    }
+    this.setState({
+      navigator: 'app',
+      navigator_props: {}
+    })
+    return false;
   }
 
   routePublishPhoto(payload) {
@@ -84,30 +57,11 @@ class InstagramScheduler extends Component {
     });
   }
 
-  onLoggedIn() {
-    this.setState({
-      navigator: 'app',
-      navigator_props: {}
-    });
-  }
-
-  onLogOut() {
-    AsyncStorage.removeItem("auth").then((response) => {
-      AsyncStorage.removeItem("images");
-
-      this.setState({
-        navigator: 'login',
-        navigator_props: {}
-      })
-    });
-  }
 
   render() {
     switch (this.state.navigator) {
       case 'app':
-        return <AppNavigator {...this.state.navigator_props} onLogOut={this.onLogOut.bind(this)}/>
-      case 'login':
-        return <LoginNavigator {...this.state.navigator_props} onLoggedIn={this.onLoggedIn.bind(this)} />
+        return <AppNavigator {...this.state.navigator_props}  onBackPress={this.onBackPress.bind(this)}/>
       case 'publish':
         return <PublishView {...this.state.navigator_props} onBackPress={this.onBackPress.bind(this)} />
 
